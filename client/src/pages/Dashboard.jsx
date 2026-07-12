@@ -20,9 +20,9 @@ const Dashboard = () => {
 
         // Fetch parallel metrics from the server endpoints you created
         const [co2Res, complianceRes, gamificationRes] = await Promise.all([
-          fetch('http://localhost:5000/api/carbon/summary', { headers }).catch(() => null),
+          fetch('http://localhost:5000/api/dashboard/emissions-summary', { headers }).catch(() => null),
           fetch('http://localhost:5000/api/compliance-issues', { headers }).catch(() => null),
-          fetch('http://localhost:5000/api/gamification/leaderboard', { headers }).catch(() => null)
+          fetch('http://localhost:5000/api/leaderboard', { headers }).catch(() => null)
         ]);
 
         const co2Data = co2Res ? await co2Res.json() : { totalEmission: 0 };
@@ -34,12 +34,24 @@ const Dashboard = () => {
           ? complianceData.filter(issue => issue.status !== 'resolved').length 
           : 0;
 
-        setMetrics({
-          totalCo2: co2Data.totalEmission || 1240, // fallback placeholder if database empty
-          csrParticipants: 45, // static mockup for missing social leads module
-          openIssues: openIssuesCount || 3,
-          xpPoints: 150
-        });
+        // Sum up CO2 across all departments (co2Data is an array)
+const totalCo2 = Array.isArray(co2Data)
+  ? co2Data.reduce((sum, dept) => sum + parseFloat(dept.total_co2 || 0), 0)
+  : 0;
+
+// Find current user's XP from the leaderboard data
+const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+const myLeaderboardEntry = Array.isArray(gamificationData)
+  ? gamificationData.find(emp => emp.id === currentUser.id)
+  : null;
+const myXp = myLeaderboardEntry ? myLeaderboardEntry.xp_points : 0;
+
+setMetrics({
+  totalCo2: totalCo2,
+  csrParticipants: 0,
+  openIssues: openIssuesCount || 0,
+  xpPoints: myXp
+});
       } catch (error) {
         console.error("Error connecting to backend modules:", error);
       } finally {
