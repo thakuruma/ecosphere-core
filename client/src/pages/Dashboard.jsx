@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    logout();
+    navigate('/login');
+  }
   const [metrics, setMetrics] = useState({
     totalCo2: 0,
     csrParticipants: 0,
@@ -63,8 +72,20 @@ setMetrics({
   }, []);
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Dashboard</h1>
+    <div>
+      <nav className="bg-white shadow-sm px-6 py-4 flex justify-between items-center mb-6">
+        <h1 className="text-xl font-bold text-green-600">EcoSphere</h1>
+        <div className="flex items-center gap-4">
+          <span className="text-slate-600 text-sm">Hi, {user?.name}</span>
+          <button onClick={handleLogout} className="text-sm text-red-500 hover:underline">
+            Log out
+          </button>
+        </div>
+      </nav>
+
+      <div className="p-6 max-w-7xl mx-auto">
+        <h1 className="text-3xl font-bold mb-6 text-gray-800">Dashboard</h1>
+    
       
       {/* Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -96,6 +117,7 @@ setMetrics({
           Backend server endpoints successfully integrated. Real-time token payloads are being tracked dynamically.
         </p>
       </div>
+    </div>
     </div>
   );
 };
