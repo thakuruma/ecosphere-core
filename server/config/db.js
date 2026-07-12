@@ -1,8 +1,6 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-// Single shared connection pool used across the whole app.
-// Every model/controller should import this instead of creating new connections.
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
